@@ -2,16 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{ title }}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="/static/image/icon.png" type="image/x-icon">
+
 </head>
 <body>
-    <div>
-        <a href="{% url 'encryption' %}">Encryption</a>
-        <a href="{% url 'decryption' %}">Decryption</a>
-    </div>
-    <div>
-        {% block content %}
-        {% endblock %}
-    </div>
+    <div class="all-menu">
+        <nav>
+            <div class="link-a">
+                <a href="{% url 'encryption' %}">Encryption</a>
+                <a href="{% url 'decryption' %}">Decryption</a>
+            </div>
+        </nav>
+        
+        <div class="content">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{form.as_p}}
+                <button type="submit">{{button}}</button>
+            </form>
+        </div>
+    </div>   
 </body>
 </html>

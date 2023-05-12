@@ -1,12 +1,9 @@
 from io import BytesIO
-
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, FileResponse
 from django.views import View
 from .forms import DecryptionForms, EncryptionForms
 import pyAesCrypt
-import magic
-import mimetypes
 
 
 def index(request):
@@ -15,13 +12,17 @@ def index(request):
 
 class EncryptionView(View):
     def get(self, request):
+        title = 'Encryption'
+        button_name = 'Encryption and download'
         form = EncryptionForms()
-        return render(request, 'home.html', {'form': form})
+        return render(request, 'index.html', {'form': form, 'button': button_name, 'title': title})
 
     def post(self, request):
+        title = 'Encryption'
+        button_name = 'Encryption and download'
         form = EncryptionForms(request.POST, request.FILES)
         if not form.is_valid():
-            return render(request, 'home.html', {'form': form})
+            return render(request, 'index.html', {'form': form, 'button': button_name, 'title': title})
         encrypted_data = BytesIO()
         buffer_size = 64 * 1024
         passwd = form.cleaned_data['password1']
@@ -39,13 +40,17 @@ class EncryptionView(View):
 class DecryptionView(View):
 
     def get(self, request):
+        title = 'Decryption'
+        button_name = 'Decryption and download'
         form = DecryptionForms()
-        return render(request, 'home.html', {'form': form})
+        return render(request, 'index.html', {'form': form, 'button': button_name, 'title': title})
 
     def post(self, request):
+        title = 'Decryption'
+        button_name = 'Decryption and download'
         form = DecryptionForms(request.POST, request.FILES)
         if not form.is_valid():
-            return render(request, 'home.html', {'form': form})
+            return render(request, 'index.html', {'form': form, 'button': button_name, 'title': title})
         encrypted_data = BytesIO(form.cleaned_data['file'].read())
         decrypted_data = BytesIO()
         encrypted_data_len = len(encrypted_data.getvalue())
@@ -55,9 +60,7 @@ class DecryptionView(View):
             pyAesCrypt.decryptStream(encrypted_data, decrypted_data, passwd, buffer_size, encrypted_data_len)
         except ValueError as exp:
             form.add_error('password', exp)
-            return render(request, 'home.html', {'form': form})
-        file_type = magic.from_buffer(decrypted_data.read(), mime=True)
-        print(file_type)
+            return render(request, 'index.html', {'form': form, 'button': button_name, 'title': title})
         decrypted_data.getvalue()
         encrypted_file = decrypted_data.getvalue()
         response = HttpResponse(decrypted_data, content_type='application/octet-stream')
